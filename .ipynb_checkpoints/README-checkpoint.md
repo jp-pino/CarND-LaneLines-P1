@@ -1,56 +1,50 @@
 # **Finding Lane Lines on the Road** 
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-<img src="examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
+## Reflection
 
-Overview
----
+### 1. Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
 
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
+The pipeline I implemented consisted of 8 steps:
+1. Thresholding in RGB space to find lane lines
+2. Turning into grayscale
+3. Make the image binary
+4. Apply a Gaussian filter
+5. Apply the Canny Edge Detector
+6. Select a region of interest
+7. Get Hough lines
+8. Merge the Hough lines with the original image
 
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
+To select the parameters for each step, I tested out different values using `ipywidgets`, which provides convenient sliders to modify the values of these parameters.
 
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
+At first I thought using another color space would be necessary to identify the lane lines properly. However, I found a combination of parameters in RGB color space that gets close enough for both cases.
+- Red: 224
+- Green: 136
+- Blue: 0
 
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
+Keeping a 1:3 ratio (low:high) for the Canny Edge Detector thresholds, I decided on 50:150 since it provided good results on most test images.
 
+To make the pipeline more robust, the region of interest had to be defined relative to the size of the image. These parameters are defined percentually and they form a polygon that encloses the lane.
 
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
+In order to draw a single line on the left and right lanes, I modified the draw_lines() function to follow this logic:
+1. Separate lines into corresponding lanes by slope.
+2. Calculate all slopes, intercepts and lengths for the lines in each of the groups.
+3. Calculate a weighted average of the slopes and intercepts using the lengths as the weights.
+4. Print the new lines on the image
 
-1. Describe the pipeline
+The image below illustrates the steps I previously mentioned:
 
-2. Identify any shortcomings
-
-3. Suggest possible improvements
-
-We encourage using images in your writeup to demonstrate how your pipeline works.  
-
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
+<img src="images/image.png" width="480" alt="Steps" />
 
 
-The Project
----
+### 2. Identify potential shortcomings with your current pipeline
 
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
+There are many potential shortcomings in this pipeline:
+- The lanes are currently approximated to a first degree polynomial. This makes fitting the drawn line to a curve harder.
+- Thresholding in RGB space may work in these test cases, but it isn't assured to work in all possible cases. 
 
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) if you haven't already.
 
-**Step 2:** Open the code in a Jupyter Notebook
+### 3. Suggest possible improvements to your pipeline
 
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out [Udacity's free course on Anaconda and Jupyter Notebooks](https://classroom.udacity.com/courses/ud1111) to get started.
-
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
-
-`> jupyter notebook`
-
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
-
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
+Many improvements could be made on this pipeline. 
+- Lane lines could be approximated to a higher degree polynomial to accomodate curves in the lane better. 
+- Another color space could be used for better thresholding. 
