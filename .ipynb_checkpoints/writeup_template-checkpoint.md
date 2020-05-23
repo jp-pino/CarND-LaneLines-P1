@@ -33,7 +33,7 @@ In order to draw a single line on the left and right lanes, I modified the draw_
 
 The image below illustrates the steps I previously mentioned:
 
-![alt text][image]
+<img src="images/image.png" width="480" alt="Steps" />
 
 
 ### 2. Identify potential shortcomings with your current pipeline
